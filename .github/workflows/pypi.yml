@@ -1,0 +1,49 @@
+name: Build, Test, and Publish on Tag
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+
+      - name: Configure and build project
+        run: |
+          cmake -S . -B build -DPYTHON_EXECUTABLE=$(which python)
+          cmake --build build --config Release
+        if: matrix.os != 'windows-latest'
+
+      - name: Configure and build project (Windows)
+        run: |
+          cmake -S . -B build -G "NMake Makefiles" -DPYTHON_EXECUTABLE=$(where python)
+          cmake --build build --config Release
+        if: matrix.os == 'windows-latest'
+
+      - name: Build wheel
+        run: |
+          python setup.py bdist_wheel
+
+      - name: Test the wheel
+        run: |
+          python -m pip install dist/*.whl
+          python -c "import pybind_example; print(pybind_example.hello_world())"
+

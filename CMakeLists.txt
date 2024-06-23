@@ -3,19 +3,15 @@ project(testpython)
 
 set(CMAKE_CXX_STANDARD 26)
 
-# Specify the path to the Python interpreter in the Miniconda environment
-set (PYTHON_EXECUTABLE "/Users/nbacquet/opt/miniconda3/envs/jupyter/bin/python")
-
-# Include pybind11 from the local directory
+# Include the local pybind11 directory
 add_subdirectory(pybind11)
 
-# Add source files
+# Define the module
 add_library(testpython MODULE src/bindings.cpp)
 
-# Link pybind11 to the target
+# Link with pybind11 and Python
 target_link_libraries(testpython PRIVATE pybind11::module)
 
-# Set Target Properties
+# Set output properties
 set_target_properties(testpython PROPERTIES
         PREFIX "")
-
