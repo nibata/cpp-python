@@ -26,8 +26,8 @@ class CMakeBuild(build_ext):
         old_cwd = os.getcwd()
         try:
             os.chdir(build_temp)
-            self.spawn(['cmake', ext.sourcedir] + cmake_args)
-            self.spawn(['cmake', '--build', '.'])
+            subprocess.check_call(['cmake', ext.sourcedir] + cmake_args)
+            subprocess.check_call(['cmake', '--build', '.'])
         finally:
             os.chdir(old_cwd)
 
@@ -37,6 +37,7 @@ setup(
     author='Nicolás Bacquet',
     author_email='nibata@gmail.com',
     description='An example package with PyBind11',
+    packages=['testpython'],  # Specify the package directory
     ext_modules=[CMakeExtension('testpython')],
     cmdclass={'build_ext': CMakeBuild},
     zip_safe=False,
