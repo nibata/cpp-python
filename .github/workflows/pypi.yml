@@ -25,13 +25,15 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install CMake
+        if: matrix.os == 'ubuntu-latest'
         run: |
-          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-            sudo apt-get update
-            sudo apt-get install -y cmake
-          elif [ "${{ matrix.os }}" == "windows-latest" ]; then
-            choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
-          fi
+          sudo apt-get update
+          sudo apt-get install -y cmake
+
+      - name: Install CMake
+        if: matrix.os == 'windows-latest'
+        run: |
+          choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
 
       - name: Install dependencies
         run: |
