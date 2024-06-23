@@ -53,10 +53,10 @@ jobs:
 
       - name: Configure and build project
         run: |
-          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+          if "${{ matrix.os }}" == "ubuntu-latest"; then
             cmake -S . -B build -DPYTHON_EXECUTABLE=$(which python)
             cmake --build build --config Release
-          elif [ "${{ matrix.os }}" == "windows-latest" ]; then
+          elif "${{ matrix.os }}" == "windows-latest"; then
             cmake -S . -B build -G "Visual Studio 16 2019" -A x64 -DPYTHON_EXECUTABLE=$(where python)
             cmake --build build --config Release
           fi
