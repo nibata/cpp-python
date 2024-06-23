@@ -51,12 +51,18 @@ jobs:
         run: |
           choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
 
-      - name: Use Visual Studio 2019 (Windows)
+      - name: Install Visual Studio Build Tools (Windows)
         if: matrix.os == 'windows-latest'
-        uses: microsoft/vssetup-action@v1
-        with:
-          vs-version: '2019'
-          architecture: 'x64'
+        run: |
+          # Download Visual Studio Build Tools installer
+          Invoke-WebRequest -Uri https://aka.ms/vs/16/release/vs_buildtools.exe -OutFile vs_buildtools.exe
+
+          # Install Visual Studio Build Tools with the Workloads and Components you need
+          # Modify the arguments as per your project's requirements
+          Start-Process -Wait -FilePath .\vs_buildtools.exe -ArgumentList '--quiet --wait --norestart --nocache --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --includeOptional' 
+
+          # Clean up the installer
+          Remove-Item vs_buildtools.exe
 
       - name: Configure and build project
         if: matrix.os == 'ubuntu-latest'
