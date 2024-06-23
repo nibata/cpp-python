@@ -69,7 +69,10 @@ jobs:
 
       - name: Test the wheel
         run: |
-          python -m pip install dist/*.whl
+          # Ensure the correct wheel filename matches what was generated
+          WHEEL_FILE=$(echo dist/*.whl)
+          echo "Found wheel file: $WHEEL_FILE"
+          python -m pip install $WHEEL_FILE
           python -m pip list
           python -c "import testpython; print(testpython.greet('NAME'))"
 
