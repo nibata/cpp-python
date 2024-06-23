@@ -24,6 +24,7 @@ set_target_properties(testpython PROPERTIES
 
 # Additional setup for Windows
 if (WIN32)
-    # Set generator to NMake Makefiles
-    set(CMAKE_GENERATOR "NMake Makefiles")
+    # Use gcc as the compiler
+    set(CMAKE_C_COMPILER gcc)
+    set(CMAKE_CXX_COMPILER g++)
 endif()
