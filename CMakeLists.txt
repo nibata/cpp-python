@@ -21,3 +21,9 @@ target_link_libraries(testpython PRIVATE pybind11::module)
 # Set output properties
 set_target_properties(testpython PROPERTIES
         PREFIX "")
+
+# Additional setup for Windows
+if (WIN32)
+    # Use Visual Studio generator
+    set(CMAKE_GENERATOR "Visual Studio")
+endif()
