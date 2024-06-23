@@ -3,7 +3,7 @@ name: Build, Test, and Publish on Tag
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*'  # Trigger on tags starting with 'v'
 
 jobs:
   build:
@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python-version: ['3.10', '3.11']
+        python-version: ['3.10', '3.11']  # Python versions to test
 
     steps:
       - name: Checkout code
@@ -19,21 +19,10 @@ jobs:
         with:
           submodules: true  # Ensure submodules are cloned
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Setup Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Install CMake
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y cmake
-
-      - name: Install CMake
-        if: matrix.os == 'windows-latest'
-        run: |
-          choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
 
       - name: Install dependencies
         run: |
@@ -51,17 +40,19 @@ jobs:
           (Get-Content setup.py) -replace '{{VERSION_PLACEHOLDER}}', $TAG_NAME | Set-Content setup.py
         if: matrix.os == 'windows-latest'
 
+      - name: Setup Visual Studio
+        if: matrix.os == 'windows-latest'
+        uses: microsoft/vssetup@latest
+
       - name: Configure and build project
         run: |
-          cmake -S . -B build -DPYTHON_EXECUTABLE=$(which python)
-          cmake --build build --config Release
-        if: matrix.os != 'windows-latest'
-
-      - name: Configure and build project (Windows)
-        run: |
-          cmake -S . -B build -G "Visual Studio 16 2019" -A x64 -DPYTHON_EXECUTABLE=$(where python)
-          cmake --build build --config Release
-        if: matrix.os == 'windows-latest'
+          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            cmake -S . -B build -DPYTHON_EXECUTABLE=$(which python)
+            cmake --build build --config Release
+          elif [ "${{ matrix.os }}" == "windows-latest" ]; then
+            cmake -S . -B build -G "Visual Studio 16 2019" -A x64 -DPYTHON_EXECUTABLE=$(where python)
+            cmake --build build --config Release
+          fi
 
       - name: Build wheel
         run: |
@@ -70,6 +61,7 @@ jobs:
       - name: Test the wheel
         run: |
           python -m pip install dist/*.whl
+          python -m pip list
           python -c "import testpython; print(testpython.greet('NAME'))"
 
       #- name: Publish to TestPyPI
