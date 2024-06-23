@@ -1,6 +1,8 @@
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 import os
+import subprocess
+import sys
 
 class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=''):
@@ -16,17 +18,18 @@ class CMakeBuild(build_ext):
         extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
         cmake_args = [
             '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
-            '-DPYTHON_EXECUTABLE=' + self.get_python_executable()
+            '-DPYTHON_EXECUTABLE=' + sys.executable
         ]
 
         build_temp = os.path.abspath(self.build_temp)
         os.makedirs(build_temp, exist_ok=True)
-        self.spawn(['cmake', ext.sourcedir] + cmake_args, cwd=build_temp)
-        self.spawn(['cmake', '--build', '.'], cwd=build_temp)
-
-    def get_python_executable(self):
-        import sys
-        return sys.executable
+        old_cwd = os.getcwd()
+        try:
+            os.chdir(build_temp)
+            self.spawn(['cmake', ext.sourcedir] + cmake_args)
+            self.spawn(['cmake', '--build', '.'])
+        finally:
+            os.chdir(old_cwd)
 
 setup(
     name='testpython',
