@@ -59,7 +59,7 @@ jobs:
 
       - name: Configure and build project (Windows)
         run: |
-          cmake -S . -B build -G "NMake Makefiles" -DPYTHON_EXECUTABLE=$(where python)
+          cmake -S . -B build -G "Visual Studio 16 2019" -A x64 -DPYTHON_EXECUTABLE=$(where python)
           cmake --build build --config Release
         if: matrix.os == 'windows-latest'
 
