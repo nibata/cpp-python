@@ -59,6 +59,7 @@ jobs:
       - name: Test the wheel
         run: |
           python -m pip install dist/*.whl
+          python -m pip list
           python -c "import testpython; print(testpython.greet('NAME'))"
 
       #- name: Publish to TestPyPI
