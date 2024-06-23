@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.29)
 project(testpython)
 
-set(CMAKE_CXX_STANDARD 26)
+set(CMAKE_CXX_STANDARD 11)
 
 # Include pybind11 using the local submodule
 add_subdirectory(pybind11)
@@ -13,10 +13,10 @@ find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
 include_directories(pybind11/include)
 
 # Define the module
-add_library(testpython MODULE src/bindings.cpp)
+pybind11_add_module(testpython src/bindings.cpp)
 
-# Link with pybind11 and Python
-target_link_libraries(testpython PRIVATE pybind11::module)
+# Link with Python
+target_link_libraries(testpython PRIVATE Python3::Python)
 
 # Set output properties
 set_target_properties(testpython PROPERTIES
@@ -24,6 +24,6 @@ set_target_properties(testpython PROPERTIES
 
 # Additional setup for Windows
 if (WIN32)
-    # Use Visual Studio generator
-    set(CMAKE_GENERATOR "Visual Studio")
+    # Set generator to NMake Makefiles
+    set(CMAKE_GENERATOR "NMake Makefiles")
 endif()
