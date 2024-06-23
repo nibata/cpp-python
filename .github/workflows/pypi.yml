@@ -27,15 +27,9 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip setuptools wheel
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if (Test-Path "requirements.txt") { pip install -r requirements.txt }
 
       - name: Set version in setup.py
-        run: |
-          TAG_NAME="${{ github.ref }}"; TAG_NAME=${TAG_NAME#refs/tags/}
-          sed -i "s/{{VERSION_PLACEHOLDER}}/${TAG_NAME}/g" setup.py
-        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
-
-      - name: Set version in setup.py (Windows)
         run: |
           $TAG_NAME="${{ github.ref }}"; $TAG_NAME=$TAG_NAME -replace "refs/tags/", ""
           (Get-Content setup.py) -replace '{{VERSION_PLACEHOLDER}}', $TAG_NAME | Set-Content setup.py
