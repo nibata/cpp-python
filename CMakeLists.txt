@@ -7,6 +7,9 @@ add_subdirectory(pybind11)
 # Find Python
 find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
 
+# Add include directory for pybind11
+include_directories(pybind11/include)
+
 # Define the module
 add_library(testpython MODULE src/bindings.cpp)
 
