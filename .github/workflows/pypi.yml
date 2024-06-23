@@ -52,14 +52,16 @@ jobs:
           choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
 
       - name: Configure and build project
+        if: matrix.os == 'ubuntu-latest'
         run: |
-          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-            cmake -S . -B build -DPYTHON_EXECUTABLE=$(which python)
-            cmake --build build --config Release
-          elif [ "${{ matrix.os }}" == "windows-latest" ]; then
-            cmake -S . -B build -G "Visual Studio 16 2019" -A x64 -DPYTHON_EXECUTABLE=$(where python)
-            cmake --build build --config Release
-          fi
+          cmake -S . -B build -DPYTHON_EXECUTABLE=$(which python)
+          cmake --build build --config Release
+
+      - name: Configure and build project (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          cmake -S . -B build -G "Visual Studio 16 2019" -A x64 -DPYTHON_EXECUTABLE=$(where python)
+          cmake --build build --config Release
 
       - name: Build wheel
         run: |
