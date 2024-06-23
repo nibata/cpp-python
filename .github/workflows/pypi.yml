@@ -10,12 +10,14 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest]
         python-version: ['3.10', '3.11']
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          submodules: true  # Ensure submodules are cloned
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
@@ -59,3 +61,10 @@ jobs:
           python -m pip install dist/*.whl
           python -c "import testpython; print(testpython.greet('NAME'))"
 
+      #- name: Publish to TestPyPI
+      #  if: contains(github.ref, 'v')
+      #  uses: pypa/gh-action-pypi-publish@master
+      #  with:
+      #    repository-url: https://test.pypi.org/legacy/
+      #    user: __token__
+      #    password: ${{ secrets.TEST_PYPI_API_TOKEN }}
