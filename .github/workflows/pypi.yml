@@ -80,13 +80,13 @@ jobs:
           $TAG_NAME="${{ github.ref }}"; $TAG_NAME=$TAG_NAME -replace "refs/tags/", ""
           (Get-Content setup.py) -replace '{{VERSION_PLACEHOLDER}}', $TAG_NAME | Set-Content setup.py
 
-      - name: Install CMake
+      - name: Install GCC
         run: |
-          choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
+          choco install mingw
 
       - name: Configure and build project
         run: |
-          cmake -S . -B build -G "Visual Studio 16 2019" -A x64 -DPYTHON_EXECUTABLE=$(where python)
+          cmake -S . -B build -G "MinGW Makefiles" -DPYTHON_EXECUTABLE=$(where python)
           cmake --build build --config Release
 
       - name: Build wheel
@@ -102,6 +102,7 @@ jobs:
           python -c "import testpython; print(testpython.greet('NAME'))"
 
       # Optionally, add a step to publish to PyPI or another repository if needed
+
 
 
       #- name: Publish to TestPyPI
