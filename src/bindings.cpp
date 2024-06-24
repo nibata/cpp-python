@@ -4,6 +4,6 @@
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(testpython, m) {
+PYBIND11_MODULE(testpythonnibata, m) {
     m.def("greet", &greet, "A function that greets the user",py::arg("name"));
 }

@@ -124,13 +124,13 @@ class CMakeBuild(build_ext):
 
 
 setup(
-    name='testpython',
+    name='testpythonnibata',
     version='{{VERSION_PLACEHOLDER}}',
     author='Nicolás Bacquet',
     author_email='nibata@gmail.com',
     description='An example package with PyBind11',
     long_description=open('README.md').read(),
-    ext_modules=[CMakeExtension('testpython')],
+    ext_modules=[CMakeExtension('testpythonnibata')],
     cmdclass={'build_ext': CMakeBuild},
     zip_safe=False,
 )

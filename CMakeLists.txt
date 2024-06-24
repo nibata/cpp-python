@@ -13,13 +13,13 @@ find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
 include_directories(pybind11/include)
 
 # Define the module
-pybind11_add_module(testpython src/bindings.cpp)
+pybind11_add_module(testpythonnibata src/bindings.cpp)
 
 # Link with Python
-target_link_libraries(testpython PRIVATE Python3::Python)
+target_link_libraries(testpythonnibata PRIVATE Python3::Python)
 
 # Set output properties
-set_target_properties(testpython PROPERTIES
+set_target_properties(testpythonnibata PROPERTIES
         PREFIX "")
 
 # Additional setup for Windows
