@@ -58,7 +58,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        python-version: ['3.10', '3.11']
+        python-version: [ '3.10', '3.11' ]
 
     steps:
       - name: Checkout code
@@ -80,13 +80,13 @@ jobs:
           $TAG_NAME="${{ github.ref }}"; $TAG_NAME=$TAG_NAME -replace "refs/tags/", ""
           (Get-Content setup.py) -replace '{{VERSION_PLACEHOLDER}}', $TAG_NAME | Set-Content setup.py
 
-      - name: Install MinGW
+      - name: Install LLVM/Clang
         run: |
-          choco install mingw --params "/NoPath /LOADINF=minwg.install"
+          choco install llvm --params '/IncludeCpp /AddToPath'
 
       - name: Configure and build project
         run: |
-          cmake -S . -B build -G "MinGW Makefiles" -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
+          cmake -S . -B build -G "Ninja" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
           cmake --build build --config Release
 
       - name: Build wheel
