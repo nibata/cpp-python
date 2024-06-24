@@ -80,13 +80,13 @@ jobs:
           $TAG_NAME="${{ github.ref }}"; $TAG_NAME=$TAG_NAME -replace "refs/tags/", ""
           (Get-Content setup.py) -replace '{{VERSION_PLACEHOLDER}}', $TAG_NAME | Set-Content setup.py
 
-      - name: Install GCC
+      - name: Install MinGW
         run: |
-          choco install mingw
+          choco install mingw --params "/NoPath /LOADINF=minwg.install"
 
       - name: Configure and build project
         run: |
-          cmake -S . -B build -G "MinGW Makefiles" -DPYTHON_EXECUTABLE=$(where python)
+          cmake -S . -B build -G "MinGW Makefiles" -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
           cmake --build build --config Release
 
       - name: Build wheel
@@ -100,6 +100,7 @@ jobs:
           python -m pip install $WHEEL_FILE
           python -m pip list
           python -c "import testpython; print(testpython.greet('NAME'))"
+
 
       # Optionally, add a step to publish to PyPI or another repository if needed
 
