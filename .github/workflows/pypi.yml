@@ -63,8 +63,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        with:
-          submodules: true  # Ensure submodules are cloned
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
@@ -72,8 +70,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip setuptools wheel
+        run: python -m pip install --upgrade pip setuptools wheel
 
       - name: Set version in setup.py
         run: |
@@ -81,18 +78,18 @@ jobs:
           (Get-Content setup.py) -replace '{{VERSION_PLACEHOLDER}}', $TAG_NAME | Set-Content setup.py
 
       - name: Install Ninja
+        run: choco install ninja
+
+      - name: Install MinGW
+        run: choco install mingw
+
+      - name: Configure and build project
         run: |
-          choco install ninja
-
-      - name: Configure CMake with Ninja and g++
-        run: cmake -S . -B build -G "Ninja" -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
-
-      - name: Build project with Ninja
-        run: cmake --build build --config Release
+          cmake -S . -B build -G "Ninja" -DCMAKE_C_COMPILER=g++ -DCMAKE_CXX_COMPILER=g++
+          cmake --build build --config Release
 
       - name: Build wheel
-        run: |
-          python setup.py bdist_wheel
+        run: python setup.py bdist_wheel
 
       - name: Test the wheel
         run: |
@@ -100,9 +97,7 @@ jobs:
           echo "Found wheel file: $WHEEL_FILE"
           python -m pip install $WHEEL_FILE
           python -m pip list
-          $PYTHON_PATH=$(python -c "import sys; print(sys.exec_prefix)")
-          Get-ChildItem -Path "$PYTHON_PATH\Lib\site-packages"
-          python -c "import testpython; print(testpython.greet('NAME'))"
+          python -c "import testpython; print(testpython.greet('World'))"
 
       # Optionally, add a step to publish to PyPI or another repository if needed
 

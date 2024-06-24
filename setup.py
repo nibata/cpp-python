@@ -1,8 +1,9 @@
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 import os
-import subprocess
 import sys
+import subprocess
+import platform
 
 class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=''):
@@ -16,20 +17,32 @@ class CMakeBuild(build_ext):
 
     def build_extension(self, ext):
         extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
+        extdir = os.path.join(extdir, ext.name)  # Ensure the directory is specific to the extension
+
         cmake_args = [
-            '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
-            '-DPYTHON_EXECUTABLE=' + sys.executable
+            f'-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={extdir}',
+            f'-DPYTHON_EXECUTABLE={sys.executable}'
         ]
 
-        build_temp = os.path.abspath(self.build_temp)
+        if platform.system() == 'Windows':
+            cmake_args += [
+                '-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE'
+            ]
+        else:
+            cmake_args += [
+                '-DCMAKE_POSITION_INDEPENDENT_CODE=TRUE'
+            ]
+
+        build_temp = self.build_temp
         os.makedirs(build_temp, exist_ok=True)
-        old_cwd = os.getcwd()
-        try:
-            os.chdir(build_temp)
-            self.spawn(['cmake', ext.sourcedir] + cmake_args)
-            self.spawn(['cmake', '--build', '.'])
-        finally:
-            os.chdir(old_cwd)
+        os.makedirs(extdir, exist_ok=True)  # Ensure the target directory exists
+
+        # Log paths for debugging
+        print(f"Building extension in: {build_temp}")
+        print(f"Placing output in: {extdir}")
+
+        subprocess.check_call(['cmake', ext.sourcedir] + cmake_args, cwd=build_temp)
+        subprocess.check_call(['cmake', '--build', '.'], cwd=build_temp)
 
 setup(
     name='testpython',
