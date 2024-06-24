@@ -37,6 +37,15 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y cmake
 
+      - name: Build project with CMake
+        run: |
+          cmake -S . -B build -DPYTHON_EXECUTABLE=$(which python)
+          cmake --build build --config Release
+
+      - name: Verify build output
+        run: |
+          ls -l build
+
       - name: Build wheel inside manylinux Docker container
         uses: addnab/docker-run-action@v3
         with:
