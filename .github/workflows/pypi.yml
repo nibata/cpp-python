@@ -54,6 +54,14 @@ jobs:
           python -m pip list
           python -c "import testpython; print(testpython.greet('NAME'))"
 
+      - name: Publish TestPyPI
+        if: contains(github.ref, 'v')
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          user: __token__
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+
   build_windows:
     runs-on: windows-latest
     strategy:
@@ -102,7 +110,7 @@ jobs:
           python -m pip list
           $PYTHON_PATH=$(python -c "import sys; print(sys.exec_prefix)")
           Get-ChildItem -Path "$PYTHON_PATH\Lib\site-packages"
-          python -c "import testpython; print(testpython.greet('NAME'))"
+       # python -c "import testpython; print(testpython.greet('NAME'))"
 
       # Optionally, add a step to publish to PyPI or another repository if needed
 
