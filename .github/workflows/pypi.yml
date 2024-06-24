@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.10', '3.11']
+        python-version: ['3.11']
 
     steps:
       - name: Checkout code
@@ -37,14 +37,38 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y cmake
 
-      - name: Configure and build project
+      - name: Build project with CMake
         run: |
           cmake -S . -B build -DPYTHON_EXECUTABLE=$(which python)
           cmake --build build --config Release
 
-      - name: Build wheel
+      - name: Verify build output
         run: |
-          python setup.py bdist_wheel
+          ls -l build
+
+      - name: Build wheel inside manylinux Docker container
+        uses: addnab/docker-run-action@v3
+        with:
+          image: quay.io/pypa/manylinux2014_x86_64  # Choose appropriate manylinux version
+          options: --rm
+          run: |
+            for PYBIN in /opt/python/cp${{ matrix.python-version }}*/bin; do
+              if [[ -d $PYBIN ]]; then
+                "${PYBIN}/pip" install --upgrade pip setuptools wheel
+                "${PYBIN}/python" -m build --wheel .
+              fi
+            done
+
+      - name: Verify wheel file
+        run: |
+          ls -l dist/*.whl
+
+      - name: Repair wheel for manylinux compatibility
+        run: |
+          python -m pip install auditwheel
+          for whl in dist/*.whl; do
+            auditwheel repair "$whl" -w dist/
+          done
 
       - name: Test the wheel
         run: |
@@ -58,6 +82,8 @@ jobs:
         if: contains(github.ref, 'v')
         uses: pypa/gh-action-pypi-publish@master
         with:
+          repository-url: https://test.pypi.org/legacy/
+          username: __token__
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
 
   build_windows:
@@ -98,7 +124,7 @@ jobs:
 
       - name: Build wheel
         run: |
-          python setup.py bdist_wheel
+          python -m build --wheel .
 
       - name: Test the wheel
         run: |
@@ -108,16 +134,13 @@ jobs:
           python -m pip list
           $PYTHON_PATH=$(python -c "import sys; print(sys.exec_prefix)")
           Get-ChildItem -Path "$PYTHON_PATH\Lib\site-packages"
-       # python -c "import testpython; print(testpython.greet('NAME'))"
 
       # Optionally, add a step to publish to PyPI or another repository if needed
-
-
 
       #- name: Publish to TestPyPI
       #  if: contains(github.ref, 'v')
       #  uses: pypa/gh-action-pypi-publish@master
       #  with:
       #    repository-url: https://test.pypi.org/legacy/
-      #    user: __token__
+      #    username: __token__
       #    password: ${{ secrets.TEST_PYPI_API_TOKEN }}
