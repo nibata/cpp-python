@@ -129,6 +129,7 @@ setup(
     author='Nicolás Bacquet',
     author_email='nibata@gmail.com',
     description='An example package with PyBind11',
+    long_description=open('README.md').read(),
     ext_modules=[CMakeExtension('testpython')],
     cmdclass={'build_ext': CMakeBuild},
     zip_safe=False,
