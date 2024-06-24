@@ -48,7 +48,7 @@ jobs:
 
       - name: Test the wheel
         run: |
-          WHEEL_FILE=$(echo dist/*.whl)
+          WHEEL_FILE=$(echo dist/*.tar.gz)
           echo "Found wheel file: $WHEEL_FILE"
           python -m pip install $WHEEL_FILE
           python -m pip list
