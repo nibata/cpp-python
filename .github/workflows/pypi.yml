@@ -52,7 +52,7 @@ jobs:
           echo "Found wheel file: $WHEEL_FILE"
           python -m pip install $WHEEL_FILE
           python -m pip list
-          python -c "import testpython; print(testpython.greet('NAME'))"
+          python -c "import testpythonnibata; print(testpythonnibata.greet('NAME'))"
 
       - name: Publish TestPyPI
         if: contains(github.ref, 'v')
