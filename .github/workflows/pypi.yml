@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.11']  # Update with available Python versions in manylinux image
+        python-version: ['3.11']
 
     steps:
       - name: Checkout code
@@ -49,6 +49,10 @@ jobs:
                 "${PYBIN}/python" setup.py bdist_wheel
               fi
             done
+
+      - name: Verify wheel file
+        run: |
+          ls -l dist/*.whl
 
       - name: Repair wheel for manylinux compatibility
         run: |
