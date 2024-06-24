@@ -15,7 +15,7 @@ PLAT_TO_CMAKE = {
     "win-arm64": "ARM64",
 }
 
-long_description = """# TEST
+long_description = """ 
 LibreríaTest con PyBind11
 """
 
