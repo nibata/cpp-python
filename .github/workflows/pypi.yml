@@ -10,13 +10,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ '3.10', '3.11' ]
+        python-version: ['3.10', '3.11']
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
-          submodules: true
+          submodules: true  # Ensure submodules are cloned
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
@@ -42,24 +42,22 @@ jobs:
           cmake -S . -B build -DPYTHON_EXECUTABLE=$(which python)
           cmake --build build --config Release
 
-      - name: Build source distribution
+      - name: Build wheel
         run: |
-          python setup.py sdist
+          python setup.py bdist_wheel
 
-      - name: Test the distribution
+      - name: Test the wheel
         run: |
-          python -m venv testenv
-          source testenv/bin/activate
-          pip install dist/*.tar.gz
+          WHEEL_FILE=$(echo dist/*.whl)
+          echo "Found wheel file: $WHEEL_FILE"
+          python -m pip install $WHEEL_FILE
           python -m pip list
           python -c "import testpythonnibata; print(testpythonnibata.greet('NAME'))"
 
-      - name: Publish to TestPyPI
+      - name: Publish TestPyPI
         if: contains(github.ref, 'v')
         uses: pypa/gh-action-pypi-publish@master
         with:
-          repository-url: https://test.pypi.org/legacy/
-          user: __token__
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
 
   build_windows:
