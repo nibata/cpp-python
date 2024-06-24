@@ -44,7 +44,7 @@ jobs:
 
       - name: Build wheel
         run: |
-          python setup.py bdist_wheel
+          python setup.py sdist
 
       - name: Test the wheel
         run: |
