@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.10', '3.11']
+        python-version: [ '3.10', '3.11' ]
 
     steps:
       - name: Checkout code
@@ -42,9 +42,8 @@ jobs:
           cmake -S . -B build -DPYTHON_EXECUTABLE=$(which python)
           cmake --build build --config Release
 
-      - name: Build wheel
-        run: |
-          python setup.py bdist_wheel
+      - name: Build source distribution
+        run: python setup.py sdist bdist_wheel
 
       - name: Test the wheel
         run: |
@@ -54,7 +53,7 @@ jobs:
           python -m pip list
           python -c "import testpythonnibata; print(testpythonnibata.greet('NAME'))"
 
-      - name: Publish TestPyPI
+      - name: Publish to PyPI
         if: contains(github.ref, 'v')
         uses: pypa/gh-action-pypi-publish@master
         with:
