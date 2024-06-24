@@ -80,14 +80,15 @@ jobs:
           $TAG_NAME="${{ github.ref }}"; $TAG_NAME=$TAG_NAME -replace "refs/tags/", ""
           (Get-Content setup.py) -replace '{{VERSION_PLACEHOLDER}}', $TAG_NAME | Set-Content setup.py
 
-      - name: Install LLVM/Clang
+      - name: Install Ninja
         run: |
-          choco install llvm --params '/IncludeCpp /AddToPath'
+          choco install ninja
 
-      - name: Configure and build project
-        run: |
-          cmake -S . -B build -G "Ninja" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
-          cmake --build build --config Release
+      - name: Configure CMake with Ninja
+        run: cmake -S . -B build -G "Ninja" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+
+      - name: Build project with Ninja
+        run: cmake --build build --config Release
 
       - name: Build wheel
         run: |
@@ -100,7 +101,6 @@ jobs:
           python -m pip install $WHEEL_FILE
           python -m pip list
           python -c "import testpython; print(testpython.greet('NAME'))"
-
 
       # Optionally, add a step to publish to PyPI or another repository if needed
 
