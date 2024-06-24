@@ -58,8 +58,6 @@ jobs:
         if: contains(github.ref, 'v')
         uses: pypa/gh-action-pypi-publish@master
         with:
-          repository-url: https://test.pypi.org/legacy/
-          user: __token__
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
 
   build_windows:
