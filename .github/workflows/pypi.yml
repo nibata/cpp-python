@@ -84,8 +84,8 @@ jobs:
         run: |
           choco install ninja
 
-      - name: Configure CMake with Ninja
-        run: cmake -S . -B build -G "Ninja" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+      - name: Configure CMake with Ninja and g++
+        run: cmake -S . -B build -G "Ninja" -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
 
       - name: Build project with Ninja
         run: cmake --build build --config Release
