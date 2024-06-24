@@ -10,23 +10,42 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.10', '3.11' ]
+        python-version: [ '3.10', '3.11' ]
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
-          submodules: true
+          submodules: true  # Ensure submodules are cloned
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
 
       - name: Set version in setup.py
         run: |
           TAG_NAME="${{ github.ref }}"; TAG_NAME=${TAG_NAME#refs/tags/}
           sed -i "s/{{VERSION_PLACEHOLDER}}/${TAG_NAME}/g" setup.py
 
+      - name: Install CMake
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake
+
+      - name: Configure and build project
+        run: |
+          cmake -S . -B build -DPYTHON_EXECUTABLE=$(which python)
+          cmake --build build --config Release
+
       - name: Build wheel inside manylinux Docker container
         uses: addnab/docker-run-action@v3
         with:
-          image: quay.io/pypa/manylinux2014_x86_64  # Change to appropriate manylinux image
+          image: quay.io/pypa/manylinux2014_x86_64  # Choose appropriate manylinux version
           options: --rm
           run: |
             for PYBIN in /opt/python/cp${{ matrix.python-version }}*/bin; do
@@ -40,19 +59,20 @@ jobs:
             auditwheel repair "$whl" -w dist/
           done
 
-      - name: Install and test the wheel
+      - name: Test the wheel
         run: |
-          python -m venv testenv
-          source testenv/bin/activate
-          pip install dist/*.whl
+          WHEEL_FILE=$(echo dist/*.whl)
+          echo "Found wheel file: $WHEEL_FILE"
+          python -m pip install $WHEEL_FILE
+          python -m pip list
           python -c "import testpythonnibata; print(testpythonnibata.greet('NAME'))"
 
-      - name: Publish to TestPyPI
+      - name: Publish TestPyPI
         if: contains(github.ref, 'v')
         uses: pypa/gh-action-pypi-publish@master
         with:
           repository-url: https://test.pypi.org/legacy/
-          user: __token__
+          username: __token__
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
 
   build_windows:
