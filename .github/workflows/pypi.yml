@@ -98,6 +98,8 @@ jobs:
         run: |
           $WHEEL_FILE=$(Get-ChildItem -Path dist\*.whl | Select-Object -ExpandProperty FullName)
           echo "Found wheel file: $WHEEL_FILE"
+          $PYTHON_PATH=$(python -c "import sys; print(sys.exec_prefix)")
+          Get-ChildItem -Path "$PYTHON_PATH\Lib\site-packages"
           python -m pip install $WHEEL_FILE
           python -m pip list
           python -c "import testpython; print(testpython.greet('NAME'))"
